@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watch Store</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f3f3f3;
+}
+
+.banner-wrap{
+width:100%;
+height:240px;
+position:relative;
+overflow:hidden;
+}
+
+.banner-track{
+display:flex;
+width:200%;
+height:100%;
+transition:transform .8s ease-in-out;
+}
+
+.banner{
+width:50%;
+height:100%;
+flex-shrink:0;
+background-size:cover;
+background-position:center;
+position:relative;
+cursor:pointer;
+}
+
+.banner.shoe{
+background-image:url("https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1600");
+}
+
+.banner.welcome{
+background-image:url("https://images.unsplash.com/photo-1707590713788-4530523ce6e7?w=1600");
+}
+
+.banner::after{
+content:"";
+position:absolute;
+inset:0;
+background:rgba(0,0,0,.35);
+}
+
+.banner h1{
+position:absolute;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+color:#fff;
+font-size:40px;
+z-index:2;
+text-shadow:0 3px 10px #000;
+white-space:nowrap;
+}
+
+.banner-dots{
+position:absolute;
+bottom:14px;
+left:50%;
+transform:translateX(-50%);
+display:flex;
+gap:10px;
+z-index:3;
+}
+
+.banner-dots span{
+width:12px;
+height:12px;
+border-radius:50%;
+background:rgba(255,255,255,.5);
+cursor:pointer;
+transition:.3s;
+}
+
+.banner-dots span.active{
+background:#fff;
+}
+
+.container{
+max-width:1200px;
+margin:30px auto;
+padding:20px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+gap:20px;
+}
+
+.card{
+background:#fff;
+border-radius:18px;
+overflow:hidden;
+box-shadow:0 8px 20px rgba(0,0,0,.1);
+transition:.3s;
+}
+
+.card:hover{
+transform:translateY(-8px);
+}
+
+.card img{
+width:100%;
+height:220px;
+object-fit:cover;
+}
+
+.info{
+padding:15px;
+text-align:center;
+}
+
+.info h3{
+margin-bottom:10px;
+}
+
+.price{
+font-size:22px;
+font-weight:bold;
+color:#d40000;
+margin-bottom:15px;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+background:#111;
+color:#fff;
+font-size:17px;
+cursor:pointer;
+border-radius:10px;
+transition:.3s;
+}
+
+button:hover{
+background:#d40000;
+}
+
+.cart{
+position:fixed;
+top:20px;
+right:20px;
+background:#111;
+color:#fff;
+padding:12px 18px;
+border-radius:12px;
+font-weight:bold;
+box-shadow:0 5px 15px rgba(0,0,0,.2);
+cursor:pointer;
+z-index:100;
+}
+
+/* ستایلی بەشی کاتژمێر */
+#clock-page {
+  display: none;
+  width: 100%;
+  min-height: 100vh;
+  background: #ffffff !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+.clock {
+  position: relative;
+  width: min(80vmin, 420px);
+  height: min(80vmin, 420px);
+  border-radius: 50%;
+  background: #ffffff;
+  border: 4px solid #000000;
+  overflow: hidden;
+}
+.marks {
+  position: absolute;
+  inset: 0;
+}
+.number {
+  position: absolute;
+  color: #000000;
+  font-size: clamp(20px, 4.2vmin, 30px);
+  font-weight: 700;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+}
+.number[data-num="12"] {
+  cursor: pointer;
+}
+.hand {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  transform-origin: bottom center;
+  border-radius: 4px;
+  background: #000000;
+}
+.hour-hand {
+  width: 7px;
+  height: 25%;
+  margin-left: -3.5px;
+}
+.minute-hand {
+  width: 4px;
+  height: 36%;
+  margin-left: -2px;
+}
+.second-hand {
+  width: 2px;
+  height: 40%;
+  margin-left: -1px;
+}
+.center-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: #000000;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+/* ستایلی بەشی میدیا/پاسۆردی یەکەم */
+#music-page {
+  display: none;
+  background-color: #000000 !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.password-box {
+  background-color: transparent;
+  border: 2px solid #ffffff;
+  border-radius: 8px;
+  padding: 10px;
+  width: 180px;
+  color: #ffffff;
+  text-align: center;
+  font-size: 16px;
+  outline: none;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+.password-box::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+#secretVideo {
+  display: none;
+}
+
+/* ---------------------------------------------------- */
+/* ستایلی وێبسایتە نوێیەکە (Ancient/Horror Page Style) */
+/* ---------------------------------------------------- */
+#ancient-page {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #1a0a0a;
+  background-image: repeating-linear-gradient(
+    45deg,
+    #2b0f0f 0px,
+    #2b0f0f 2px,
+    #1f0808 2px,
+    #1f0808 6px
+  );
+  z-index: 20000;
+  justify-content: center;
+  align-items: center;
+  font-family: "Courier New", Courier, "Lucida Sans Typewriter", monospace;
+  padding: 1rem;
+  margin: 0;
+  animation: screenFlicker 6s infinite steps(2);
+  overflow: hidden;
+}
+
+.ancient-box {
+  max-width: 700px;
+  width: 100%;
+  background: #0d0505;
+  border: 8px double #7a3e3e;
+  box-shadow: 
+    0 0 20px #3f0000,
+    inset 0 0 30px #1f0000,
+    0 0 60px #4a0a0a;
+  padding: 2.5rem 1.5rem;
+  position: relative;
+  transition: all 0.05s ease;
+  text-align: center;
+  animation: glitchBox 4.7s infinite;
+}
+
+.empty-core {
+  display: block;
+  min-height: 60px;
+  min-width: 60px;
+  font-size: 0;
+  color: transparent;
+  background: transparent;
+  border: none;
+  margin: 0 auto;
+}
+
+.crack-line {
+  display: block;
+  height: 2px;
+  background: #3b1a1a;
+  margin: 1.8rem 0;
+  box-shadow: 0 0 8px #6f1f1f;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+}
+
+.password-form {
+  margin-top: 1.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.password-input {
+  background: #1c0909;
+  border: 4px inset #3f1616;
+  padding: 1rem 1.8rem;
+  width: 90%;
+  max-width: 380px;
+  font-size: 1.7rem;
+  text-align: center;
+  color: #bc6c6c;
+  font-family: "Courier New", monospace;
+  letter-spacing: 6px;
+  box-shadow: inset 0 0 25px #220000;
+  outline: none;
+  transition: 0.1s;
+  caret-color: #b30000;
+}
+
+.password-input:focus {
+  background: #120404;
+  border-color: #8f2a2a;
+  box-shadow: 0 0 30px #b30000, inset 0 0 30px #3f0000;
+}
+
+.btn-submit {
+  background: #2b0f0f;
+  border: 4px outset #632222;
+  color: #b55a5a;
+  font-size: 2.5rem;
+  font-weight: bold;
+  padding: 0.8rem 3rem;
+  cursor: crosshair;
+  text-shadow: 2px 2px 0 #1f0000;
+  box-shadow: 0 0 20px #4f0a0a;
+  font-family: "Times New Roman", serif;
+  letter-spacing: 10px;
+  transition: 0.1s;
+  text-transform: uppercase;
+  width: fit-content;
+  margin: 0 auto;
+  animation: btnFlicker 1.9s infinite;
+}
+
+.btn-submit:hover {
+  background: #3f1515;
+  border-color: #a33a3a;
+  color: #e68383;
+  box-shadow: 0 0 60px #cc2222;
+  transform: scale(1.02) rotate(1deg);
+}
+
+@keyframes glitchBox {
+  0%, 90%, 100% { transform: translate(0); opacity: 1; }
+  92% { transform: translate(-12px, 6px) skewX(-3deg); opacity: 0.95; }
+  94% { transform: translate(10px, -8px) skewX(4deg); opacity: 0.9; }
+  96% { transform: translate(-6px, 4px) skewX(-2deg); }
+  98% { transform: translate(6px, -2px) skewX(2deg); }
+}
+
+@keyframes screenFlicker {
+  0%, 100% { opacity: 1; }
+  10% { opacity: 0.92; }
+  20% { opacity: 1; }
+  30% { opacity: 0.88; }
+  70% { opacity: 1; }
+  85% { opacity: 0.95; }
+  95% { opacity: 0.6; }
+}
+
+@keyframes btnFlicker {
+  0%, 100% { box-shadow: 0 0 20px #4f0a0a; }
+  50% { box-shadow: 0 0 50px #a02020, 0 0 100px #6f0a0a; }
+}
+
+.vintage-noise {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 999;
+  background: repeating-linear-gradient(0deg, 
+    rgba(0,0,0,0.1) 0px, 
+    rgba(20,0,0,0.2) 2px, 
+    transparent 2px, 
+    transparent 6px);
+  animation: noiseMove 0.2s infinite alternate;
+}
+
+@keyframes noiseMove {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 8px; }
+}
+
+.glitch-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: radial-gradient(circle at 30% 40%, rgba(100,0,0,0.2), transparent 70%);
+  z-index: 998;
+  mix-blend-mode: multiply;
+}
+
+.empty-symbol {
+  display: block;
+  height: 2px;
+  background: #1f0a0a;
+  width: 40%;
+  margin: 1rem auto;
+  opacity: 0.15;
+}
+
+/* ---------------------------------------------------- */
+/* ستایلی سیستەمی چوونەژوورەوەی نوێی کارت (وێنەی نوێ) */
+/* ---------------------------------------------------- */
+#terminal-page {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #000;
+    font-family: monospace;
+    z-index: 30000;
+}
+
+.bg-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background-image: url('https://files.catbox.moe/fjr8f1.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    z-index: 10;
+    cursor: pointer;
+    transition: opacity 0.5s ease;
+}
+
+#scan-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    color: #00ff00;
+    font-size: 11px;
+    line-height: 1.6;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.scan-line {
+    opacity: 0;
+    white-space: nowrap;
+    animation: fadeInLine 0.2s forwards;
+}
+
+@keyframes fadeInLine {
+    to { opacity: 0.8; }
+}
+
+.login-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    display: none;
+}
+
+.terminal-password-input {
+    width: 240px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.75);
+    border: 1px solid #00ff00;
+    color: #00ff00;
+    font-size: 12px;
+    text-align: center;
+    outline: none;
+    font-family: monospace;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+}
+
+.terminal-password-input::placeholder {
+    color: rgba(0, 255, 0, 0.5);
+    font-size: 11px;
+}
+
+.shake {
+    animation: shakeAnim 0.4s ease-in-out;
+    border-color: #ff0000 !important;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+}
+
+@keyframes shakeAnim {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+}
+
+/* شاردنەوەی تاگی ئۆدیۆکە بۆ ئەوەی دیار نەبێت */
+#cartAudio {
+    display: none;
+}
+</style>
+
+</head>
+<body>
+
+<!-- بەشی یەکەم: دوکانەکە -->
+<div id="store-page">
+  <div class="cart" onclick="openTerminalPage()">
+  🛒 Cart: <span id="count">0</span>
+  </div>
+
+  <div class="banner-wrap">
+  <div class="banner-track" id="bannerTrack">
+  <div class="banner welcome">
+  <h1>بەخێربێت</h1>
+  </div>
+  <div class="banner shoe" onclick="window.open('https://vel-sooty-mu.vercel.app/#','_blank')">
+  <h1>SHOE SALE</h1>
+  </div>
+  </div>
+  <div class="banner-dots" id="bannerDots">
+  <span class="dot active" data-index="0"></span>
+  <span class="dot" data-index="1"></span>
+  </div>
+  </div>
+
+  <div class="container">
+  <div class="card">
+  <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600">
+  <div class="info">
+  <h3>Classic Watch</h3>
+  <div class="price">$89</div>
+  <button onclick="buy()">Buy</button>
+  </div>
+  </div>
+
+  <div class="card">
+  <img src="https://images.unsplash.com/photo-1434056886845-dac89ffe9b56?w=600">
+  <div class="info">
+  <h3>Luxury Watch</h3>
+  <div class="price">$149</div>
+  <button onclick="buy()">Buy</button>
+  </div>
+  </div>
+
+  <div class="card">
+  <img src="https://images.unsplash.com/photo-1508057198894-247b23fe5ade?w=600">
+  <div class="info">
+  <h3>Sport Watch</h3>
+  <div class="price">$119</div>
+  <button onclick="openAncientPage()">Buy</button>
+  </div>
+  </div>
+
+  <div class="card">
+  <img src="https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=600">
+  <div class="info">
+  <h3>Modern Watch</h3>
+  <div class="price">$199</div>
+  <button onclick="buy()">Buy</button>
+  </div>
+  </div>
+
+  <div class="card">
+  <img src="https://images.unsplash.com/photo-1612817159949-195b6eb9e31a?w=600">
+  <div class="info">
+  <h3>Black Watch</h3>
+  <div class="price">$129</div>
+  <button onclick="openClockWebsite()">Buy</button>
+  </div>
+  </div>
+
+  <div class="card">
+  <img src="https://files.catbox.moe/2hcmx1.jpeg">
+  <div class="info">
+  <h3>Silver Watch</h3>
+  <div class="price">$179</div>
+  <button onclick="buy()">Buy</button>
+  </div>
+  </div>
+  </div>
+</div>
+
+<!-- بەشی دووەم: کاتژمێرەکە -->
+<div id="clock-page">
+  <div class="clock" id="clock">
+    <div class="marks" id="marks"></div>
+    <div class="hand hour-hand" id="hourHand"></div>
+    <div class="hand minute-hand" id="minuteHand"></div>
+    <div class="hand second-hand" id="secondHand"></div>
+    <div class="center-dot"></div>
+  </div>
+</div>
+
+<!-- بەشی سێیەم: میدیای یەکەم (Black Watch) -->
+<div id="music-page">
+    <input type="password" class="password-box" id="passInput" placeholder="password" onclick="startMusic()" autocomplete="off">
+    <video id="secretVideo" src="https://files.catbox.moe/t6oixz.mov" preload="auto" playsinline></video>
+</div>
+
+<!-- بەشی چوارەم: وێبسایتە ئەفسووناوییەکە (Ancient Page) -->
+<div id="ancient-page">
+  <div class="vintage-noise"></div>
+  <div class="glitch-overlay"></div>
+
+  <div class="ancient-box" id="horrorBox">
+    <div class="empty-core"></div>
+    <div class="crack-line"></div>
+    <div class="empty-symbol"></div>
+
+    <div class="password-form">
+      <input type="password" class="password-input" id="horrorPassInput" placeholder=" " value="" oninput="startMedia(); checkPassword();" onclick="startMedia()">
+      <button class="btn-submit" id="horrorBtn" onclick="startMedia(); checkPassword();"></button>
+    </div>
+
+    <video id="bgMedia" loop playsinline src="https://files.catbox.moe/587beo.mp4" style="display:none;"></video>
+    <div style="height: 10px;"></div>
+    <div class="empty-symbol"></div>
+  </div>
+</div>
+
+<!-- بەشی پێنجەم: سیستەمی نوێی کارتەکە (سیستەمی سکان و وێنە) -->
+<div id="terminal-page">
+    <div id="overlay">
+        <div id="scan-container"></div>
+    </div>
+
+    <div class="login-box" id="loginBox">
+        <input type="password" class="terminal-password-input" id="terminalPassInput" placeholder="ENTER PASSWORD..." autofocus onkeydown="checkTerminalPassword(event)">
+    </div>
+
+    <div class="bg-container"></div>
+
+    <!-- تاگی ئۆدیۆ بۆ دەنگە نوێیەکە کە داوات کردبوو -->
+    <audio id="cartAudio" src="https://files.catbox.moe/gkakqk.mov" preload="auto" playsinline></audio>
+</div>
+
+<script>
+let cart=0;
+
+function buy(){
+cart++;
+document.getElementById("count").innerText=cart;
+}
+
+let slideIndex=0;
+const track=document.getElementById("bannerTrack");
+const dots=document.querySelectorAll("#bannerDots .dot");
+
+function goToSlide(i){
+slideIndex=i;
+track.style.transform="translateX(-"+(slideIndex*50)+"%)";
+dots.forEach((d,idx)=>d.classList.toggle("active", idx===slideIndex));
+}
+
+function nextSlide(){
+goToSlide((slideIndex+1)%2);
+}
+
+dots.forEach(d=>{
+d.addEventListener("click",()=>goToSlide(parseInt(d.dataset.index)));
+});
+
+setInterval(nextSlide,3500);
+
+function openClockWebsite() {
+  document.getElementById('store-page').style.display = 'none';
+  document.getElementById('clock-page').style.display = 'flex';
+  
+  const marksEl = document.getElementById('marks');
+  marksEl.innerHTML = '';
+  const numbers = ["12","1","2","3","4","5","6","7","8","9","10","11"];
+  const radius = 165;
+  
+  numbers.forEach((num, i) => {
+    const angle = (i * 30 - 90) * Math.PI / 180;
+    const x = 210 + radius * Math.cos(angle);
+    const y = 210 + radius * Math.sin(angle);
+    const el = document.createElement('div');
+    el.className = 'number';
+    el.setAttribute('data-num', num);
+    el.style.left = (x / 420 * 100) + '%';
+    el.style.top = (y / 420 * 100) + '%';
+    el.textContent = num;
+
+    if (num === "12") {
+      el.addEventListener('click', openMusicWebsite);
+    }
+
+    marksEl.appendChild(el);
+  });
+  
+  updateClock();
+}
+
+const hourHand = document.getElementById('hourHand');
+const minuteHand = document.getElementById('minuteHand');
+const secondHand = document.getElementById('secondHand');
+
+function updateClock() {
+  if (document.getElementById('clock-page').style.display !== 'flex') return;
+  const now = new Date();
+  const h = now.getHours() % 12;
+  const m = now.getMinutes();
+  const s = now.getSeconds();
+  const ms = now.getMilliseconds();
+
+  const secAngle = s * 6 + ms * 0.006;
+  const minAngle = m * 6 + s * 0.1;
+  const hourAngle = h * 30 + m * 0.5;
+
+  hourHand.style.transform = "rotate(" + hourAngle + "deg)";
+  minuteHand.style.transform = "rotate(" + minAngle + "deg)";
+  secondHand.style.transform = "rotate(" + secAngle + "deg)";
+
+  requestAnimationFrame(updateClock);
+}
+
+function openMusicWebsite() {
+  document.getElementById('clock-page').style.display = 'none';
+  document.getElementById('music-page').style.display = 'flex';
+}
+
+var isPlaying = false;
+function startMusic() {
+    var video = document.getElementById("secretVideo");
+    if (video && !isPlaying) {
+        video.play().then(() => {
+            isPlaying = true;
+        }).catch(err => {
+            console.log("Error playing media: ", err);
+        });
+    }
+}
+
+/* ---------------------------------------------------- */
+/* فەنکشنەکانی بەشی وێبسایتە ئەفسووناوییەکە (Ancient Page) */
+/* ---------------------------------------------------- */
+function openAncientPage() {
+  document.getElementById('store-page').style.display = 'none';
+  document.getElementById('ancient-page').style.display = 'flex';
+  initAncientEffects();
+}
+
+var isMediaPlaying = false;
+function startMedia() {
+  var media = document.getElementById("bgMedia");
+  if (media && !isMediaPlaying) {
+    media.muted = false;
+    media.play().then(function() {
+      isMediaPlaying = true;
+    }).catch(function(error) {
+      console.log("Playback interaction required:", error);
+    });
+  }
+}
+
+function checkPassword() {
+  const inputVal = document.getElementById('horrorPassInput').value;
+  if (inputVal === 'morth') {
+    window.location.href = 'https://kurdvel-glow-explore.lovable.app/';
+  }
+}
+
+function initAncientEffects() {
+  const box = document.getElementById('horrorBox');
+  const btn = document.getElementById('horrorBtn');
+
+  setInterval(() => {
+    if (Math.random() > 0.65) {
+      box.style.transform = `translate(${Math.random() * 14 - 7}px, ${Math.random() * 14 - 7}px) scale(${1 + (Math.random() * 0.04 - 0.02)})`;
+      box.style.filter = `hue-rotate(${Math.random() * 8 - 4}deg) brightness(${0.8 + Math.random() * 0.4})`;
+      setTimeout(() => {
+        box.style.transform = '';
+        box.style.filter = '';
+      }, 120);
+    }
+
+    if (Math.random() > 0.8) {
+      btn.style.transform = `scale(${1 + Math.random() * 0.2}) rotate(${Math.random() * 8 - 4}deg)`;
+      btn.style.boxShadow = `0 0 ${60 + Math.random() * 80}px #aa2222`;
+      setTimeout(() => {
+        btn.style.transform = '';
+        btn.style.boxShadow = '';
+      }, 90);
+    }
+  }, 400);
+
+  document.addEventListener('mousemove', (e) => {
+    if (document.getElementById('ancient-page').style.display !== 'flex') return;
+    if (Math.random() > 0.94) {
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+      box.style.transform = `translate(${x * 10 - 5}px, ${y * 10 - 5}px) rotate(${x * 2 - 1}deg)`;
+      box.style.transition = '0.02s';
+      setTimeout(() => {
+        box.style.transform = '';
+      }, 50);
+    }
+  });
+}
+
+/* ---------------------------------------------------- */
+/* لۆجیک و سکرێپتی فەرمی وێبسایتە نوێیەکە بۆ کارتەکە */
+/* ---------------------------------------------------- */
+let scanInterval;
+const scanTexts = [
+    "INITIALIZING SECURE PROTOCOL...",
+    "CONNECTING TO REMOTE BUFFER...",
+    "DECRYPTING INTERFACE TEXTURES...",
+    "LOADING CORE MODULES...",
+    "CHECKING FILE INTEGRITY... [OK]",
+    "ALLOCATING MEMORY BLOCKS...",
+    "SYSTEM READY. LAUNCHING CONTAINER."
+];
+
+function openTerminalPage() {
+    document.getElementById('store-page').style.display = 'none';
+    document.getElementById('terminal-page').style.display = 'block';
+    
+    const overlay = document.getElementById('overlay');
+    const loginBox = document.getElementById('loginBox');
+    const scanContainer = document.getElementById('scan-container');
+    const audio = document.getElementById('cartAudio');
+    
+    let lineIndex = 0;
+    scanInterval = setInterval(function() {
+        if (lineIndex < scanTexts.length) {
+            const div = document.createElement('div');
+            div.className = 'scan-line';
+            div.textContent = `[>>] ${scanTexts[lineIndex]}`;
+            scanContainer.appendChild(div);
+            scanContainer.scrollTop = scanContainer.scrollHeight;
+            lineIndex++;
+        }
+    }, 400);
+
+    setTimeout(function() {
+        clearInterval(scanInterval);
+        overlay.style.opacity = '0';
+        loginBox.style.display = 'block';
+        
+        // لێرەدا دەنگەکە لێدەدات کاتێک سکانەکە تەواو دەبێت و ئۆڤەرلەیەکە لادەچێت
+        if(audio) {
+            audio.play().catch(err => console.log("Audio playback delayed:", err));
+        }
+        
+        setTimeout(function() {
+            overlay.style.display = 'none';
+            scanContainer.innerHTML = '';
+            document.getElementById('terminalPassInput').focus();
+        }, 500);
+    }, 3500);
+}
+
+function checkTerminalPassword(event) {
+    if (event.key === "Enter") {
+        const input = document.getElementById('terminalPassInput');
+        if (input.value === "morth") {
+            window.location.href = "https://vel-map.lovable.app/";
+        } else {
+            input.classList.add('shake');
+            input.value = "";
+            setTimeout(function() {
+                input.classList.remove('shake');
+            }, 400);
+        }
+    }
+}
+</script>
+
+</body>
+</html>
